@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자수업체 ERP 시스템</title>
+                <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #005a87;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-menu li {
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sidebar-menu li:hover, .sidebar-menu li.active {
+            background-color: #34495e;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .btn-primary {
+            background-color: #3498db;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-warning {
+            background-color: #f39c12;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert-info {
+            background-color: #d9edf7;
+            border: 1px solid #bce8f1;
+            color: #31708f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-pending {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .status-progress {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-completed {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .image-upload-area {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .image-upload-area.active {
+            border-color: #3498db;
+            background-color: #ebf7fd;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 15px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filters select, .filters input {
+            max-width: 200px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .drag-instructions {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .shortcuts {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .size-color-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        .size-color-matrix th, .size-color-matrix td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .size-color-matrix th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .size-color-matrix input.quantity-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .summary-row td {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">자수업체 ERP 시스템</div>
+        <div>
+            <span id="current-user">관리자</span> | 
+            <span id="current-date">2025-04-23</span>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active">작업지시 관리</li>
+                <li>생산 추적</li>
+                <li>재고 관리</li>
+                <li>디자인 관리</li>
+                <li>고객/업체 관리</li>
+                <li>보고서</li>
+                <li>설정</li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="card">
+                <div class="card-title">
+                    <span>신규 작업지시 등록</span>
+                </div>
+                <div class="alert alert-info">
+                    <strong>팁:</strong> 작업지시서 이미지를 캡처(PrintScreen)하여 아래 영역에 붙여넣기(Ctrl+V)하면 자동으로 정보가 추출됩니다.
+                </div>
+                <div class="image-upload-area" id="image-upload-area">
+                    <div class="drag-instructions">작업지시서 이미지를 여기에 드래그하거나 붙여넣기 하세요</div>
+                    <p>또는</p>
+                    <button class="btn btn-primary">파일 선택</button>
+                    <div class="shortcuts">단축키: PrintScreen 후 Ctrl+V로 바로 붙여넣기</div>
+                </div>
+                <div style="display: none;" id="image-preview-container">
+                    <img id="image-preview" class="image-preview" src="/api/placeholder/400/320" alt="작업지시서 미리보기" />
+                    <button class="btn btn-danger" style="margin-top: 10px;">이미지 삭제</button>
+                </div>
+                <form>
+                    <div class="form-group">
+                        <label for="style-no">스타일 번호</label>
+                        <input type="text" id="style-no" placeholder="예: TH2F7ASZ501ME">
+                    </div>
+                    <div class="form-group">
+                        <label for="customer">고객사</label>
+                        <select id="customer">
+                            <option value="">선택하세요</option>
+                            <option value="1">TIME HOMME</option>
+                            <option value="2">HANDSOME</option>
+                            <option value="3">OEM 업체1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="designer">디자이너</label>
+                        <select id="designer">
+                            <option value="">선택하세요</option>
+                            <option value="1">김디자인</option>
+                            <option value="2">이디자이너</option>
+                            <option value="3">박디자인</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="manufacturer">생산처(봉제업체)</label>
+                        <select id="manufacturer">
+                            <option value="">선택하세요</option>
+                            <option value="1">세원봉제</option>
+                            <option value="2">대한봉제</option>
+                            <option value="3">한솔봉제</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="quoted-price">견적 단가 (원)</label>
+                            <input type="number" id="quoted-price" placeholder="예: 1500">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="approved-price">인정 단가 (원)</label>
+                            <input type="number" id="approved-price" placeholder="예: 1400">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">납기일</label>
+                        <input type="date" id="deadline">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>색상/사이즈별 수량 매트릭스</label>
+                        <div style="margin-bottom: 10px;">
+                            <button type="button" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">+ 색상 추가</button>
+                            <button type="button" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px; margin-left: 10px;">+ 사이즈 추가</button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="size-color-matrix">
+                                <thead>
+                                    <tr>
+                                        <th>COLOR<br/>NO.</th>
+                                        <th>수량</th>
+                                        <th>230</th>
+                                        <th>235</th>
+                                        <th>240</th>
+                                        <th>245</th>
+                                        <th>250</th>
+                                        <th>기타</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center;">
+                                                <div class="color-box" style="background-color: black;"></div>
+                                                <span>BK (P)</span>
+                                            </div>
+                                        </td>
+                                        <td>130-90</td>
+                                        <td><input type="number" class="quantity-input" value="11"></td>
+                                        <td><input type="number" class="quantity-input" value="21"></td>
+                                        <td><input type="number" class="quantity-input" value="28"></td>
+                                        <td><input type="number" class="quantity-input" value="18"></td>
+                                        <td><input type="number" class="quantity-input" value="12"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; padding-left: 20px;">
+                                                <span>(SN)</span>
+                                            </div>
+                                        </td>
+                                        <td>40</td>
+                                        <td><input type="number" class="quantity-input" value="6"></td>
+                                        <td><input type="number" class="quantity-input" value="9"></td>
+                                        <td><input type="number" class="quantity-input" value="12"></td>
+                                        <td><input type="number" class="quantity-input" value="7"></td>
+                                        <td><input type="number" class="quantity-input" value="6"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center;">
+                                                <div class="color-box" style="background-color: black;"></div>
+                                                <span>BK (P)</span>
+                                            </div>
+                                        </td>
+                                        <td>100-75</td>
+                                        <td><input type="number" class="quantity-input" value="9"></td>
+                                        <td><input type="number" class="quantity-input" value="17"></td>
+                                        <td><input type="number" class="quantity-input" value="24"></td>
+                                        <td><input type="number" class="quantity-input" value="15"></td>
+                                        <td><input type="number" class="quantity-input" value="10"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; padding-left: 20px;">
+                                                <span>(SN)</span>
+                                            </div>
+                                        </td>
+                                        <td>25</td>
+                                        <td><input type="number" class="quantity-input" value="3"></td>
+                                        <td><input type="number" class="quantity-input" value="6"></td>
+                                        <td><input type="number" class="quantity-input" value="8"></td>
+                                        <td><input type="number" class="quantity-input" value="5"></td>
+                                        <td><input type="number" class="quantity-input" value="3"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center;">
+                                                <div class="color-box" style="background-color: #8B8878;"></div>
+                                                <span>LE</span>
+                                            </div>
+                                        </td>
+                                        <td>150-105</td>
+                                        <td><input type="number" class="quantity-input" value="13"></td>
+                                        <td><input type="number" class="quantity-input" value="25"></td>
+                                        <td><input type="number" class="quantity-input" value="33"></td>
+                                        <td><input type="number" class="quantity-input" value="20"></td>
+                                        <td><input type="number" class="quantity-input" value="14"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; padding-left: 20px;">
+                                                <span>(SN)</span>
+                                            </div>
+                                        </td>
+                                        <td>45</td>
+                                        <td><input type="number" class="quantity-input" value="6"></td>
+                                        <td><input type="number" class="quantity-input" value="10"></td>
+                                        <td><input type="number" class="quantity-input" value="14"></td>
+                                        <td><input type="number" class="quantity-input" value="9"></td>
+                                        <td><input type="number" class="quantity-input" value="6"></td>
+                                        <td><input type="number" class="quantity-input" value="0"></td>
+                                    </tr>
+                                    <tr class="summary-row">
+                                        <td colspan="2" style="text-align: right;"><strong>합계:</strong></td>
+                                        <td><strong>48</strong></td>
+                                        <td><strong>88</strong></td>
+                                        <td><strong>119</strong></td>
+                                        <td><strong>74</strong></td>
+                                        <td><strong>51</strong></td>
+                                        <td><strong>0</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn">취소</button>
+                        <button type="submit" class="btn btn-primary">작업지시 등록</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <span>최근 작업지시 목록</span>
+                    <button class="btn" style="padding: 5px 10px; font-size: 14px;">엑셀 다운로드</button>
+                </div>
+                <div class="filters">
+                    <select>
+                        <option>모든 고객사</option>
+                        <option>TIME HOMME</option>
+                        <option>HANDSOME</option>
+                        <option>OEM 업체1</option>
+                    </select>
+                    <select>
+                        <option>모든 상태</option>
+                        <option>대기중</option>
+                        <option>진행중</option>
+                        <option>완료</option>
+                    </select>
+                    <input type="text" placeholder="스타일번호 검색" style="flex-grow: 1;">
+                    <button class="btn">검색</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>스타일 번호</th>
+                            <th>고객사</th>
+                            <th>디자이너</th>
+                            <th>생산처</th>
+                            <th>견적단가</th>
+                            <th>인정단가</th>
+                            <th>총 수량</th>
+                            <th>재단입고</th>
+                            <th>자수완료</th>
+                            <th>봉제출고</th>
+                            <th>등록일</th>
+                            <th>납기일</th>
+                            <th>상태</th>
+                            <th>액션</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TH2F7ASZ501ME</td>
+                            <td>TIME HOMME</td>
+                            <td>김디자인</td>
+                            <td>세원봉제</td>
+                            <td>1,500</td>
+                            <td>1,350</td>
+                            <td>90</td>
+                            <td>90</td>
+                            <td>45</td>
+                            <td>0</td>
+                            <td>2025-04-20</td>
+                            <td>2025-04-30</td>
+                            <td><span class="status-progress">진행중</span></td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">상세</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IL2P13AS201ZW</td>
+                            <td>HANDSOME</td>
+                            <td>이디자이너</td>
+                            <td>대한봉제</td>
+                            <td>1,800</td>
+                            <td>1,650</td>
+                            <td>80</td>
+                            <td>80</td>
+                            <td>80</td>
+                            <td>80</td>
+                            <td>2025-04-10</td>
+                            <td>2025-04-17</td>
+                            <td><span class="status-completed">완료</span></td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">상세</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IL2P40495</td>
+                            <td>HANDSOME</td>
+                            <td>박디자인</td>
+                            <td>한솔봉제</td>
+                            <td>2,000</td>
+                            <td>1,800</td>
+                            <td>74</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>2025-04-22</td>
+                            <td>2025-04-28</td>
+                            <td><span class="status-pending">대기중</span></td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">상세</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 이미지 영역 클릭 시 파일 선택 다이얼로그 표시
+        document.getElementById('image-upload-area').addEventListener('click', function() {
+            // 실제 구현에서는 파일 선택 다이얼로그를 표시
+        });
+
+        // 이미지 업로드 영역에 드래그 오버 이벤트
+        document.getElementById('image-upload-area').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('active');
+        });
+
+        // 이미지 업로드 영역에서 드래그 떠날 때 이벤트
+        document.getElementById('image-upload-area').addEventListener('dragleave', function() {
+            this.classList.remove('active');
+        });
+
+        // 이미지 업로드 영역에 드롭 이벤트
+        document.getElementById('image-upload-area').addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('active');
+            // 실제 구현에서는 파일을 읽고 이미지를 표시
+            document.getElementById('image-upload-area').style.display = 'none';
+            document.getElementById('image-preview-container').style.display = 'block';
+        });
+
+        // 페이지 전체에 붙여넣기 이벤트 리스너 추가
+        document.addEventListener('paste', function(e) {
+            // 클립보드에서 이미지를 가져와 처리하는 코드가 들어갈 위치
+            document.getElementById('image-upload-area').style.display = 'none';
+            document.getElementById('image-preview-container').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
