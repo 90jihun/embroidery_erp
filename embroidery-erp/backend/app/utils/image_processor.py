@@ -8,7 +8,7 @@ from datetime import datetime
 
 # OCR 설정
 # Windows의 경우 pytesseract 경로 설정이 필요할 수 있음
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def preprocess_image(image_path: str) -> Image.Image:
     """이미지 전처리 함수"""
