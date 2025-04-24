@@ -6,14 +6,18 @@ import OrderList from '../components/orders/OrderList';
 
 const OrdersPage = () => {
   return (
-    <Box p={5}>
-      <Box mb={5}>
-        <Heading size="lg">작업지시서</Heading>
-        <Text color="gray.600">작업지시서 관리 페이지입니다.</Text>
+    <Box p={6}>
+      <Box mb={6}>
+        <Heading size="lg" mb={1}>작업지시서</Heading>
+        <Text fontSize="md" color="gray.500">
+          작업지시서 관리 페이지입니다.
+        </Text>
       </Box>
-      
+
       <OrderForm />
-      <OrderList />
+      <Box mt={8}>
+        <OrderList />
+      </Box>
     </Box>
   );
 };

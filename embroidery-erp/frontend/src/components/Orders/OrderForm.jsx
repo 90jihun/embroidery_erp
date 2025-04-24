@@ -1,9 +1,9 @@
-// OrderForm.jsx - Chakra UI v3 스타일 리팩토링
+// OrderForm.jsx - Chakra UI v2 기준 리팩토링
 import React, { useState, useEffect } from 'react';
 import {
   Box, Heading, Alert, AlertIcon, Button, Text, Flex, Input, Select, Table,
-  TableHeader, TableBody, TableRow, TableCell, TableColumnHeader, useToast,
-  Field, FieldLabel, FieldControl, FieldError
+  Thead, Tbody, Tr, Td, Th, useToast,
+  FormControl, FormLabel, FormErrorMessage, Badge
 } from '@chakra-ui/react';
 
 const OrderForm = () => {
@@ -104,34 +104,28 @@ const OrderForm = () => {
 
         <form onSubmit={handleSubmit}>
           {["스타일 번호", "고객사", "디자이너", "생산처(봉제업체)"].map((label, index) => (
-            <Field key={index} mb={4}>
-              <FieldLabel>{label}</FieldLabel>
-              <FieldControl>
-                <Input placeholder={`예: ${label}`} />
-              </FieldControl>
-              <FieldError />
-            </Field>
+            <FormControl key={index} mb={4} isInvalid={false}>
+              <FormLabel>{label}</FormLabel>
+              <Input placeholder={`예: ${label}`} />
+              <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
+            </FormControl>
           ))}
 
           <Flex gap={4} mb={4}>
             {["견적 단가 (원)", "인정 단가 (원)"].map((label, index) => (
-              <Field key={index} flex={1}>
-                <FieldLabel>{label}</FieldLabel>
-                <FieldControl>
-                  <Input type="number" min={0} placeholder={`예: ${label.includes('견적') ? 1500 : 1400}`} />
-                </FieldControl>
-                <FieldError />
-              </Field>
+              <FormControl key={index} flex={1} isInvalid={false}>
+                <FormLabel>{label}</FormLabel>
+                <Input type="number" min={0} placeholder={`예: ${label.includes('견적') ? 1500 : 1400}`} />
+                <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
+              </FormControl>
             ))}
           </Flex>
 
-          <Field mb={4}>
-            <FieldLabel>납기일</FieldLabel>
-            <FieldControl>
-              <Input type="date" />
-            </FieldControl>
-            <FieldError />
-          </Field>
+          <FormControl mb={4} isInvalid={false}>
+            <FormLabel>납기일</FormLabel>
+            <Input type="date" />
+            <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
+          </FormControl>
 
           <Box mb={4}>
             <Text fontWeight="bold" mb={2}>색상/사이즈별 수량 매트릭스</Text>
@@ -141,33 +135,33 @@ const OrderForm = () => {
             </Flex>
             <Box overflowX="auto">
               <Table size="sm" variant="simple">
-                <TableHeader>
-                  <TableRow>
+                <Thead>
+                  <Tr>
                     {['COLOR NO.', '수량', '230', '235', '240', '245', '250', '기타'].map((col, i) => (
-                      <TableColumnHeader key={i}>{col}</TableColumnHeader>
+                      <Th key={i}>{col}</Th>
                     ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>
                       <Flex align="center">
                         <Box w="20px" h="20px" bg="black" mr={2} border="1px" borderColor="gray.300" />
                         <Text>BK (P)</Text>
                       </Flex>
-                    </TableCell>
-                    <TableCell>130-90</TableCell>
+                    </Td>
+                    <Td>130-90</Td>
                     {[11, 21, 28, 18, 12, 0].map((val, i) => (
-                      <TableCell key={i}><Input type="number" size="xs" defaultValue={val} textAlign="center" w="50px" /></TableCell>
+                      <Td key={i}><Input type="number" size="xs" defaultValue={val} textAlign="center" w="50px" /></Td>
                     ))}
-                  </TableRow>
-                  <TableRow bg="gray.50">
-                    <TableCell colSpan={2} textAlign="right"><strong>합계:</strong></TableCell>
+                  </Tr>
+                  <Tr bg="gray.50">
+                    <Td colSpan={2} textAlign="right"><strong>합계:</strong></Td>
                     {[48, 88, 119, 74, 51, 0].map((val, i) => (
-                      <TableCell key={i}><strong>{val}</strong></TableCell>
+                      <Td key={i}><strong>{val}</strong></Td>
                     ))}
-                  </TableRow>
-                </TableBody>
+                  </Tr>
+                </Tbody>
               </Table>
             </Box>
           </Box>

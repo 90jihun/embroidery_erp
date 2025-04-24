@@ -1,185 +1,109 @@
-// OrderForm.jsx & OrderList.jsx - Chakra UI v3 스타일 리팩토링
-import React, { useState, useEffect } from 'react';
+// OrderList.jsx - Chakra UI v2 기준 리팩토링
+import React from 'react';
 import {
-  Box, Heading, Alert, AlertIcon, Button, Text, Flex, Input, Select, Table,
-  TableHeader, TableBody, TableRow, TableCell, TableColumnHeader, useToast,
-  Field, FieldLabel, FieldControl, FieldError, Badge
+  Box,
+  Heading,
+  Button,
+  Flex,
+  Input,
+  Select,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Badge
 } from '@chakra-ui/react';
 
-const OrderForm = () => {
-  const toast = useToast();
-  const [imagePreview, setImagePreview] = useState(null);
-
-  const handleDragOver = (e) => e.preventDefault();
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleImageFile(e.dataTransfer.files[0]);
-    }
+const OrderList = () => {
+  const getStatusBadge = (status) => {
+    const colorMap = {
+      '대기중': 'red',
+      '진행중': 'orange',
+      '완료': 'green'
+    };
+    return (
+      <Badge colorScheme={colorMap[status] || 'gray'} fontSize="0.8em">
+        {status}
+      </Badge>
+    );
   };
-
-  const handleImageFile = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => setImagePreview(e.target.result);
-    reader.readAsDataURL(file);
-  };
-
-  const handleFileInput = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageFile(e.target.files[0]);
-    }
-  };
-
-  const handlePaste = (e) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
-        handleImageFile(file);
-        break;
-      }
-    }
-  };
-
-  const handleDeleteImage = () => setImagePreview(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    toast({
-      title: "작업지시 등록 완료",
-      description: "작업지시가 성공적으로 등록되었습니다.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
-  };
-
-  useEffect(() => {
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
-  }, []);
 
   return (
-    <Box p={5}>
-      <Box bg="white" p={5} borderRadius="md" boxShadow="md" mb={5}>
-        <Heading size="md" mb={4}>신규 작업지시 등록</Heading>
-        <Alert status="info" mb={4}>
-          <AlertIcon />
-          <Box>
-            <Text fontWeight="bold">팁:</Text>
-            <Text>
-              작업지시서 이미지를 캡처(PrintScreen)하여 아래 영역에 붙여넣기(Ctrl+V)하면 자동으로 정보가 추출됩니다.
-            </Text>
-          </Box>
-        </Alert>
+    <Box bg="white" p={5} borderRadius="md" boxShadow="md" mb={5}>
+      <Flex justify="space-between" align="center" mb={4}>
+        <Heading size="md">최근 작업지시 목록</Heading>
+        <Button size="sm">엑셀 다운로드</Button>
+      </Flex>
 
-        {!imagePreview ? (
-          <Box
-            border="2px dashed"
-            borderColor="gray.200"
-            borderRadius="md"
-            p={10}
-            bg="gray.50"
-            textAlign="center"
-            mb={4}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            _hover={{ borderColor: "blue.400", bg: "blue.50" }}>
-            <Text fontSize="lg" mb={2}>작업지시서 이미지를 여기에 드래그하거나 붙여넣기 하세요</Text>
-            <Text mb={3}>또는</Text>
-            <input type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} id="image-upload" />
-            <label htmlFor="image-upload">
-              <Button as="span" colorScheme="blue">파일 선택</Button>
-            </label>
-            <Text fontSize="sm" mt={2} color="gray.500">단축키: PrintScreen 후 Ctrl+V로 바로 붙여넣기</Text>
-          </Box>
-        ) : (
-          <Box mb={4} textAlign="center">
-            <Box maxH="300px" overflow="hidden" borderRadius="md" mb={2}>
-              <img src={imagePreview} alt="작업지시서 미리보기" style={{ maxWidth: '100%' }} />
-            </Box>
-            <Button colorScheme="red" size="sm" onClick={handleDeleteImage}>이미지 삭제</Button>
-          </Box>
-        )}
+      <Flex mb={4} gap={2} flexWrap="wrap">
+        <Select placeholder="모든 고객사" size="sm" w="180px">
+          <option>TIME HOMME</option>
+          <option>HANDSOME</option>
+          <option>OEM 업체1</option>
+        </Select>
+        <Select placeholder="모든 상태" size="sm" w="180px">
+          <option>대기중</option>
+          <option>진행중</option>
+          <option>완료</option>
+        </Select>
+        <Input placeholder="스타일번호 검색" size="sm" flexGrow={1} />
+        <Button size="sm">검색</Button>
+      </Flex>
 
-        <form onSubmit={handleSubmit}>
-          {["스타일 번호", "고객사", "디자이너", "생산처(봉제업체)"].map((label, index) => (
-            <Field key={index} mb={4}>
-              <FieldLabel>{label}</FieldLabel>
-              <FieldControl>
-                <Input placeholder={`예: ${label}`} />
-              </FieldControl>
-              <FieldError />
-            </Field>
-          ))}
-
-          <Flex gap={4} mb={4}>
-            {["견적 단가 (원)", "인정 단가 (원)"].map((label, index) => (
-              <Field key={index} flex={1}>
-                <FieldLabel>{label}</FieldLabel>
-                <FieldControl>
-                  <Input type="number" min={0} placeholder={`예: ${label.includes('견적') ? 1500 : 1400}`} />
-                </FieldControl>
-                <FieldError />
-              </Field>
+      <Box overflowX="auto">
+        <Table variant="simple" size="sm">
+          <Thead>
+            <Tr>
+              {[
+                '스타일 번호', '고객사', '디자이너', '생산처',
+                '견적단가', '인정단가', '총 수량',
+                '재단입고', '자수완료', '봉제출고',
+                '등록일', '납기일', '상태', '액션'
+              ].map((col, i) => (
+                <Th key={i} isNumeric={[4,5,6,7,8,9].includes(i)}>{col}</Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {[{
+              style: 'TH2F7ASZ501ME', brand: 'TIME HOMME', designer: '김디자인', vendor: '세원봉제',
+              quote: 1500, final: 1350, qty: 90, cut: 90, emb: 45, sew: 0,
+              created: '2025-04-20', due: '2025-04-30', status: '진행중'
+            },{
+              style: 'IL2P13AS201ZW', brand: 'HANDSOME', designer: '이디자이너', vendor: '대한봉제',
+              quote: 1800, final: 1650, qty: 80, cut: 80, emb: 80, sew: 80,
+              created: '2025-04-10', due: '2025-04-17', status: '완료'
+            },{
+              style: 'IL2P40495', brand: 'HANDSOME', designer: '박디자인', vendor: '한솔봉제',
+              quote: 2000, final: 1800, qty: 74, cut: 0, emb: 0, sew: 0,
+              created: '2025-04-22', due: '2025-04-28', status: '대기중'
+            }].map((item, i) => (
+              <Tr key={i}>
+                <Td>{item.style}</Td>
+                <Td>{item.brand}</Td>
+                <Td>{item.designer}</Td>
+                <Td>{item.vendor}</Td>
+                <Td isNumeric>{item.quote.toLocaleString()}</Td>
+                <Td isNumeric>{item.final.toLocaleString()}</Td>
+                <Td isNumeric>{item.qty}</Td>
+                <Td isNumeric>{item.cut}</Td>
+                <Td isNumeric>{item.emb}</Td>
+                <Td isNumeric>{item.sew}</Td>
+                <Td>{item.created}</Td>
+                <Td>{item.due}</Td>
+                <Td>{getStatusBadge(item.status)}</Td>
+                <Td>
+                  <Button size="xs" colorScheme="blue">상세</Button>
+                </Td>
+              </Tr>
             ))}
-          </Flex>
-
-          <Field mb={4}>
-            <FieldLabel>납기일</FieldLabel>
-            <FieldControl>
-              <Input type="date" />
-            </FieldControl>
-            <FieldError />
-          </Field>
-
-          <Box mb={4}>
-            <Text fontWeight="bold" mb={2}>색상/사이즈별 수량 매트릭스</Text>
-            <Flex mb={3} gap={2}>
-              <Button size="sm" colorScheme="blue">+ 색상 추가</Button>
-              <Button size="sm" colorScheme="blue">+ 사이즈 추가</Button>
-            </Flex>
-            <Box overflowX="auto">
-              <Table size="sm" variant="simple">
-                <TableHeader>
-                  <TableRow>
-                    {['COLOR NO.', '수량', '230', '235', '240', '245', '250', '기타'].map((col, i) => (
-                      <TableColumnHeader key={i}>{col}</TableColumnHeader>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <Flex align="center">
-                        <Box w="20px" h="20px" bg="black" mr={2} border="1px" borderColor="gray.300" />
-                        <Text>BK (P)</Text>
-                      </Flex>
-                    </TableCell>
-                    <TableCell>130-90</TableCell>
-                    {[11, 21, 28, 18, 12, 0].map((val, i) => (
-                      <TableCell key={i}><Input type="number" size="xs" defaultValue={val} textAlign="center" w="50px" /></TableCell>
-                    ))}
-                  </TableRow>
-                  <TableRow bg="gray.50">
-                    <TableCell colSpan={2} textAlign="right"><strong>합계:</strong></TableCell>
-                    {[48, 88, 119, 74, 51, 0].map((val, i) => (
-                      <TableCell key={i}><strong>{val}</strong></TableCell>
-                    ))}
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-
-          <Flex justify="flex-end" mt={6} gap={2}>
-            <Button>취소</Button>
-            <Button type="submit" colorScheme="blue">작업지시 등록</Button>
-          </Flex>
-        </form>
+          </Tbody>
+        </Table>
       </Box>
     </Box>
   );
 };
 
-export default OrderForm;
+export default OrderList;
