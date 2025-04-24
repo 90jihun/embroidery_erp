@@ -1,57 +1,54 @@
-// OrderForm.jsx - Chakra UI v2 기준 리팩토링
+// OrderForm.jsx - 도식화/자수 이미지 업로드 분리 UI 리팩토링 (Chakra UI 기반)
 import React, { useState, useEffect } from 'react';
 import {
   Box, Heading, Alert, AlertIcon, Button, Text, Flex, Input, Select, Table,
-  Thead, Tbody, Tr, Td, Th, useToast,
-  FormControl, FormLabel, FormErrorMessage, Badge
+  Thead, Tbody, Tr, Td, Th, useToast, FormControl, FormLabel
 } from '@chakra-ui/react';
 
 const OrderForm = () => {
   const toast = useToast();
-  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState({ graphic: null, embroidery: null });
 
-  const handleDragOver = (e) => e.preventDefault();
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleImageFile(e.dataTransfer.files[0]);
-    }
+  const [formData, setFormData] = useState({
+    styleNo: '', customer: '', designer: '', manufacturer: '',
+    quotedPrice: '', approvedPrice: '', deadline: '',
+    colorSizeMatrix: [
+      { colorName: 'BK (P)', colorCode: '#000000', quantity: '130-90', sizes: { '230': 11, '235': 21, '240': 28, '245': 18, '250': 12, 'etc': 0 } }
+    ]
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageFile = (file) => {
+  const handleSizeQuantityChange = (colorIndex, size, value) => {
+    const newMatrix = [...formData.colorSizeMatrix];
+    newMatrix[colorIndex].sizes[size] = parseInt(value) || 0;
+    setFormData({ ...formData, colorSizeMatrix: newMatrix });
+  };
+
+  const calculateTotal = (size) => formData.colorSizeMatrix.reduce((sum, color) => sum + (color.sizes[size] || 0), 0);
+
+  const handleImageFile = (type, file) => {
     const reader = new FileReader();
-    reader.onload = (e) => setImagePreview(e.target.result);
+    reader.onload = (e) => setImagePreview((prev) => ({ ...prev, [type]: e.target.result }));
     reader.readAsDataURL(file);
   };
 
-  const handleFileInput = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageFile(e.target.files[0]);
-    }
+  const handleFileInput = (type) => (e) => {
+    if (e.target.files && e.target.files[0]) handleImageFile(type, e.target.files[0]);
   };
 
   const handlePaste = (e) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
-        handleImageFile(file);
+    for (let i = 0; i < e.clipboardData.items.length; i++) {
+      const file = e.clipboardData.items[i].getAsFile();
+      if (e.clipboardData.items[i].type.includes('image')) {
+        setImagePreview((prev) => ({ ...prev, embroidery: URL.createObjectURL(file) }));
         break;
       }
     }
-  };
-
-  const handleDeleteImage = () => setImagePreview(null);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    toast({
-      title: "작업지시 등록 완료",
-      description: "작업지시가 성공적으로 등록되었습니다.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
   };
 
   useEffect(() => {
@@ -59,119 +56,92 @@ const OrderForm = () => {
     return () => window.removeEventListener('paste', handlePaste);
   }, []);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.styleNo || !formData.customer) {
+      toast({ title: '입력 오류', description: '스타일번호 및 고객사를 입력해주세요.', status: 'error', duration: 3000, isClosable: true });
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await fetch('/api/orders', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, imageGraphic: imagePreview.graphic, imageEmbroidery: imagePreview.embroidery })
+      });
+      if (!response.ok) throw new Error('서버 오류 발생');
+      toast({ title: '등록 완료', status: 'success', duration: 5000, isClosable: true });
+    } catch (err) {
+      toast({ title: '등록 실패', description: err.message, status: 'error', duration: 5000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Box p={5}>
-      <Box bg="white" p={5} borderRadius="md" boxShadow="md" mb={5}>
-        <Heading size="md" mb={4}>신규 작업지시 등록</Heading>
-        <Alert status="info" mb={4}>
-          <AlertIcon />
-          <Box>
-            <Text fontWeight="bold">팁:</Text>
-            <Text>
-              작업지시서 이미지를 캡처(PrintScreen)하여 아래 영역에 붙여넣기(Ctrl+V)하면 자동으로 정보가 추출됩니다.
-            </Text>
+    <Box p={5} maxW="1200px" mx="auto">
+      <Heading size="lg" mb={6}>신규 작업지시 등록</Heading>
+
+      <Flex gap={6} mb={6} direction={{ base: 'column', md: 'row' }}>
+        {['graphic', 'embroidery'].map((type) => (
+          <Box flex={1} borderWidth={1} borderRadius="md" p={5} key={type}>
+            <Heading size="sm" mb={2}>{type === 'graphic' ? '도식화' : '자수'}</Heading>
+            {!imagePreview[type] ? (
+              <Box border="2px dashed" borderColor="gray.200" borderRadius="md" p={6} bg="gray.50" textAlign="center">
+                <Text mb={2}>이미지를 드래그하거나 붙여넣기 하세요</Text>
+                <input type="file" accept="image/*" id={`${type}-upload`} style={{ display: 'none' }} onChange={handleFileInput(type)} />
+                <label htmlFor={`${type}-upload`}><Button as="span" colorScheme="blue">파일 선택</Button></label>
+                <Text fontSize="sm" mt={2} color="gray.500">PrintScreen 후 붙여넣기</Text>
+              </Box>
+            ) : (
+              <Box textAlign="center">
+                <img src={imagePreview[type]} alt={`${type} preview`} style={{ maxHeight: '250px', margin: '0 auto' }} />
+                <Button size="sm" mt={2} colorScheme="red" onClick={() => setImagePreview((prev) => ({ ...prev, [type]: null }))}>삭제</Button>
+              </Box>
+            )}
           </Box>
-        </Alert>
+        ))}
+      </Flex>
 
-        {!imagePreview ? (
-          <Box
-            border="2px dashed"
-            borderColor="gray.200"
-            borderRadius="md"
-            p={10}
-            bg="gray.50"
-            textAlign="center"
-            mb={4}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            _hover={{ borderColor: "blue.400", bg: "blue.50" }}>
-            <Text fontSize="lg" mb={2}>작업지시서 이미지를 여기에 드래그하거나 붙여넣기 하세요</Text>
-            <Text mb={3}>또는</Text>
-            <input type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} id="image-upload" />
-            <label htmlFor="image-upload">
-              <Button as="span" colorScheme="blue">파일 선택</Button>
-            </label>
-            <Text fontSize="sm" mt={2} color="gray.500">단축키: PrintScreen 후 Ctrl+V로 바로 붙여넣기</Text>
-          </Box>
-        ) : (
-          <Box mb={4} textAlign="center">
-            <Box maxH="300px" overflow="hidden" borderRadius="md" mb={2}>
-              <img src={imagePreview} alt="작업지시서 미리보기" style={{ maxWidth: '100%' }} />
-            </Box>
-            <Button colorScheme="red" size="sm" onClick={handleDeleteImage}>이미지 삭제</Button>
-          </Box>
-        )}
+      <form onSubmit={handleSubmit}>
+        <FormControl mb={4}><FormLabel>스타일 번호</FormLabel><Input name="styleNo" value={formData.styleNo} onChange={handleInputChange} /></FormControl>
+        <FormControl mb={4}><FormLabel>고객사</FormLabel><Select name="customer" value={formData.customer} onChange={handleInputChange} placeholder="선택하세요"><option value="TIME HOMME">TIME HOMME</option><option value="HANDSOME">HANDSOME</option></Select></FormControl>
 
-        <form onSubmit={handleSubmit}>
-          {["스타일 번호", "고객사", "디자이너", "생산처(봉제업체)"].map((label, index) => (
-            <FormControl key={index} mb={4} isInvalid={false}>
-              <FormLabel>{label}</FormLabel>
-              <Input placeholder={`예: ${label}`} />
-              <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
-            </FormControl>
-          ))}
+        <Flex gap={4} mb={4}>
+          <FormControl><FormLabel>견적 단가</FormLabel><Input name="quotedPrice" type="number" value={formData.quotedPrice} onChange={handleInputChange} /></FormControl>
+          <FormControl><FormLabel>인정 단가</FormLabel><Input name="approvedPrice" type="number" value={formData.approvedPrice} onChange={handleInputChange} /></FormControl>
+        </Flex>
 
-          <Flex gap={4} mb={4}>
-            {["견적 단가 (원)", "인정 단가 (원)"].map((label, index) => (
-              <FormControl key={index} flex={1} isInvalid={false}>
-                <FormLabel>{label}</FormLabel>
-                <Input type="number" min={0} placeholder={`예: ${label.includes('견적') ? 1500 : 1400}`} />
-                <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
-              </FormControl>
-            ))}
-          </Flex>
+        <FormControl mb={4}><FormLabel>납기일</FormLabel><Input name="deadline" type="date" value={formData.deadline} onChange={handleInputChange} /></FormControl>
 
-          <FormControl mb={4} isInvalid={false}>
-            <FormLabel>납기일</FormLabel>
-            <Input type="date" />
-            <FormErrorMessage>필수 입력 항목입니다.</FormErrorMessage>
-          </FormControl>
-
-          <Box mb={4}>
-            <Text fontWeight="bold" mb={2}>색상/사이즈별 수량 매트릭스</Text>
-            <Flex mb={3} gap={2}>
-              <Button size="sm" colorScheme="blue">+ 색상 추가</Button>
-              <Button size="sm" colorScheme="blue">+ 사이즈 추가</Button>
-            </Flex>
-            <Box overflowX="auto">
-              <Table size="sm" variant="simple">
-                <Thead>
-                  <Tr>
-                    {['COLOR NO.', '수량', '230', '235', '240', '245', '250', '기타'].map((col, i) => (
-                      <Th key={i}>{col}</Th>
+        <Box mb={4}>
+          <Text fontWeight="bold" mb={2}>색상/사이즈 수량</Text>
+          <Box overflowX="auto">
+            <Table size="sm">
+              <Thead><Tr><Th>Color</Th><Th>Qty</Th>{['230','235','240','245','250','etc'].map(size => (<Th key={size}>{size}</Th>))}</Tr></Thead>
+              <Tbody>
+                {formData.colorSizeMatrix.map((color, idx) => (
+                  <Tr key={idx}>
+                    <Td><Flex align="center"><Box w="20px" h="20px" bg={color.colorCode} mr={2} border="1px solid gray" /><Text>{color.colorName}</Text></Flex></Td>
+                    <Td>{color.quantity}</Td>
+                    {['230','235','240','245','250','etc'].map(size => (
+                      <Td key={size}><Input size="xs" type="number" value={color.sizes[size]} onChange={(e) => handleSizeQuantityChange(idx, size, e.target.value)} textAlign="center" w="50px" /></Td>
                     ))}
                   </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>
-                      <Flex align="center">
-                        <Box w="20px" h="20px" bg="black" mr={2} border="1px" borderColor="gray.300" />
-                        <Text>BK (P)</Text>
-                      </Flex>
-                    </Td>
-                    <Td>130-90</Td>
-                    {[11, 21, 28, 18, 12, 0].map((val, i) => (
-                      <Td key={i}><Input type="number" size="xs" defaultValue={val} textAlign="center" w="50px" /></Td>
-                    ))}
-                  </Tr>
-                  <Tr bg="gray.50">
-                    <Td colSpan={2} textAlign="right"><strong>합계:</strong></Td>
-                    {[48, 88, 119, 74, 51, 0].map((val, i) => (
-                      <Td key={i}><strong>{val}</strong></Td>
-                    ))}
-                  </Tr>
-                </Tbody>
-              </Table>
-            </Box>
+                ))}
+                <Tr bg="gray.50">
+                  <Td colSpan={2} textAlign="right"><strong>합계</strong></Td>
+                  {['230','235','240','245','250','etc'].map(size => (<Td key={size}><strong>{calculateTotal(size)}</strong></Td>))}
+                </Tr>
+              </Tbody>
+            </Table>
           </Box>
+        </Box>
 
-          <Flex justify="flex-end" mt={6} gap={2}>
-            <Button>취소</Button>
-            <Button type="submit" colorScheme="blue">작업지시 등록</Button>
-          </Flex>
-        </form>
-      </Box>
+        <Flex justify="flex-end" mt={6} gap={3}>
+          <Button onClick={() => window.location.reload()}>취소</Button>
+          <Button type="submit" colorScheme="blue" isLoading={loading} loadingText="저장 중...">작업지시 등록</Button>
+        </Flex>
+      </form>
     </Box>
   );
 };
