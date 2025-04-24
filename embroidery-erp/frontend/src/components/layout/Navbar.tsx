@@ -11,14 +11,14 @@ const Navbar = () => {
           <RouterLink to="/">자수업체 ERP</RouterLink>
         </Heading>
         
-        <Stack direction={'row'} spacing={4}>
-          <Button as={Button} colorScheme="blue" variant="solid">
+        <Stack direction={'row'} gap={4}>
+          <Button colorScheme="blue" variant="solid">
             <RouterLink to="/orders">작업지시서</RouterLink>
           </Button>
-          <Button as={Button} colorScheme="blue" variant="solid">
+          <Button colorScheme="blue" variant="solid">
             <RouterLink to="/customers">고객사</RouterLink>
           </Button>
-          <Button as={Button} colorScheme="blue" variant="solid">
+          <Button colorScheme="blue" variant="solid">
             <RouterLink to="/production">생산관리</RouterLink>
           </Button>
         </Stack>
