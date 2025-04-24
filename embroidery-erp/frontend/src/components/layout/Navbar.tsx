@@ -16,7 +16,7 @@ const Navbar = () => {
           </RouterLink>
         </Heading>
         
-        <HStack gap={2}>
+        <HStack spacing={2}>
           <Text fontWeight="medium">관리자</Text>
           <Text>|</Text>
           <Text>{formattedDate}</Text>

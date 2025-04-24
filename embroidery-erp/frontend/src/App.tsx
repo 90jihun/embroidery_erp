@@ -15,7 +15,12 @@ function App() {
       <Router>
         <Flex direction="column" h="100vh">
           <Navbar />
-          {/* 나머지 코드 */}
+          <Flex flex="1" overflow="hidden">
+            <Sidebar />
+            <Box flex="1" overflowY="auto" bg="gray.50">
+              <Routes />
+            </Box>
+          </Flex>
         </Flex>
       </Router>
     </ChakraProvider>

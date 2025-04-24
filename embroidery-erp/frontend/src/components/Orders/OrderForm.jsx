@@ -1,29 +1,23 @@
 // src/components/orders/OrderForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
+  Alert,
+  AlertIcon,
+  Button,
+  Text,
+  Flex,
   FormControl,
   FormLabel,
   Input,
   Select,
-  Button,
-  Flex,
-  NumberInput,
-  NumberInputField,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  HStack,
-  Center,
-  Text,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableColumnHeader,
   useToast
 } from '@chakra-ui/react';
 
@@ -90,7 +84,7 @@ const OrderForm = () => {
     });
   };
   
-  React.useEffect(() => {
+  useEffect(() => {
     // 전역 붙여넣기 이벤트 리스너 등록
     window.addEventListener('paste', handlePaste);
     
@@ -107,10 +101,10 @@ const OrderForm = () => {
         <Alert status="info" mb={4}>
           <AlertIcon />
           <Box>
-            <AlertTitle>팁:</AlertTitle>
-            <AlertDescription>
+            <Text fontWeight="bold">팁:</Text>
+            <Text>
               작업지시서 이미지를 캡처(PrintScreen)하여 아래 영역에 붙여넣기(Ctrl+V)하면 자동으로 정보가 추출됩니다.
-            </AlertDescription>
+            </Text>
           </Box>
         </Alert>
         
@@ -186,15 +180,11 @@ const OrderForm = () => {
           <Flex gap={4} mb={4}>
             <FormControl flex={1}>
               <FormLabel>견적 단가 (원)</FormLabel>
-              <NumberInput min={0}>
-                <NumberInputField placeholder="예: 1500" />
-              </NumberInput>
+              <Input type="number" placeholder="예: 1500" min={0} />
             </FormControl>
             <FormControl flex={1}>
               <FormLabel>인정 단가 (원)</FormLabel>
-              <NumberInput min={0}>
-                <NumberInputField placeholder="예: 1400" />
-              </NumberInput>
+              <Input type="number" placeholder="예: 1400" min={0} />
             </FormControl>
           </Flex>
           
@@ -205,52 +195,52 @@ const OrderForm = () => {
           
           <FormControl mb={4}>
             <FormLabel>색상/사이즈별 수량 매트릭스</FormLabel>
-            <HStack mb={3}>
+            <Flex mb={3} gap={2}>
               <Button size="sm" colorScheme="blue">+ 색상 추가</Button>
               <Button size="sm" colorScheme="blue">+ 사이즈 추가</Button>
-            </HStack>
+            </Flex>
             
             <Box overflowX="auto">
-              <Table variant="simple" size="sm" border="1px" borderColor="gray.200">
-                <Thead bg="gray.50">
-                  <Tr>
-                    <Th>COLOR<br/>NO.</Th>
-                    <Th>수량</Th>
-                    <Th>230</Th>
-                    <Th>235</Th>
-                    <Th>240</Th>
-                    <Th>245</Th>
-                    <Th>250</Th>
-                    <Th>기타</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>
+              <Table size="sm" variant="simple">
+                <TableHeader>
+                  <TableRow>
+                    <TableColumnHeader>COLOR<br/>NO.</TableColumnHeader>
+                    <TableColumnHeader>수량</TableColumnHeader>
+                    <TableColumnHeader>230</TableColumnHeader>
+                    <TableColumnHeader>235</TableColumnHeader>
+                    <TableColumnHeader>240</TableColumnHeader>
+                    <TableColumnHeader>245</TableColumnHeader>
+                    <TableColumnHeader>250</TableColumnHeader>
+                    <TableColumnHeader>기타</TableColumnHeader>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
                       <Flex align="center">
                         <Box w="20px" h="20px" bg="black" mr={2} border="1px" borderColor="gray.300"></Box>
                         <Text>BK (P)</Text>
                       </Flex>
-                    </Td>
-                    <Td>130-90</Td>
-                    <Td><Input type="number" size="xs" defaultValue={11} textAlign="center" w="50px" /></Td>
-                    <Td><Input type="number" size="xs" defaultValue={21} textAlign="center" w="50px" /></Td>
-                    <Td><Input type="number" size="xs" defaultValue={28} textAlign="center" w="50px" /></Td>
-                    <Td><Input type="number" size="xs" defaultValue={18} textAlign="center" w="50px" /></Td>
-                    <Td><Input type="number" size="xs" defaultValue={12} textAlign="center" w="50px" /></Td>
-                    <Td><Input type="number" size="xs" defaultValue={0} textAlign="center" w="50px" /></Td>
-                  </Tr>
+                    </TableCell>
+                    <TableCell>130-90</TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={11} textAlign="center" w="50px" /></TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={21} textAlign="center" w="50px" /></TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={28} textAlign="center" w="50px" /></TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={18} textAlign="center" w="50px" /></TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={12} textAlign="center" w="50px" /></TableCell>
+                    <TableCell><Input type="number" size="xs" defaultValue={0} textAlign="center" w="50px" /></TableCell>
+                  </TableRow>
                   {/* 필요한 만큼 행 추가 */}
-                  <Tr bg="gray.50">
-                    <Td colSpan={2} textAlign="right"><strong>합계:</strong></Td>
-                    <Td><strong>48</strong></Td>
-                    <Td><strong>88</strong></Td>
-                    <Td><strong>119</strong></Td>
-                    <Td><strong>74</strong></Td>
-                    <Td><strong>51</strong></Td>
-                    <Td><strong>0</strong></Td>
-                  </Tr>
-                </Tbody>
+                  <TableRow bg="gray.50">
+                    <TableCell colSpan={2} textAlign="right"><strong>합계:</strong></TableCell>
+                    <TableCell><strong>48</strong></TableCell>
+                    <TableCell><strong>88</strong></TableCell>
+                    <TableCell><strong>119</strong></TableCell>
+                    <TableCell><strong>74</strong></TableCell>
+                    <TableCell><strong>51</strong></TableCell>
+                    <TableCell><strong>0</strong></TableCell>
+                  </TableRow>
+                </TableBody>
               </Table>
             </Box>
           </FormControl>

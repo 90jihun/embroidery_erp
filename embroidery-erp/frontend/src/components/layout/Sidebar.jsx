@@ -1,6 +1,6 @@
 // src/components/layout/Sidebar.jsx
 import React from 'react';
-import { Box, List, ListItem, Link } from '@chakra-ui/react';
+import { Box, List, ListItem, Link, Flex } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -25,7 +25,7 @@ const Sidebar = () => {
       h="100%" 
       p={0}
     >
-      <List spacing={0}>
+      <List>
         {menuItems.map((item) => (
           <ListItem 
             key={item.path}
