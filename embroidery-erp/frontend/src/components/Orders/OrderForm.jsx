@@ -5,6 +5,7 @@ import {
   Thead, Tbody, Tr, Td, Th, useToast, FormControl, FormLabel, Grid, GridItem, IconButton
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 const OrderForm = () => {
   const toast = useToast();
@@ -17,10 +18,10 @@ const OrderForm = () => {
   const [formData, setFormData] = useState({
     styleNo: '', customer: '', designer: '', manufacturer: '',
     quotedPrice: '', approvedPrice: '', deadline: '', jobNo: '', quantity: '',
-    colors: [ { colorName: 'BK', colorCode: '#000000' } ],
+    colors: [ { colorName: 'WT', colorCode: '#000000' } ],
     sizes: ['1', '2', '3', '4', '5'],
     quantities: {
-      'BK': { '1': 11, '2': 21, '3': 28, '4': 18, '5': 12 }
+      'WT': { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
     }
   });
 
@@ -78,7 +79,7 @@ const OrderForm = () => {
   }; */
 
   // 사이즈명 변경
-  const handleSizeChange = (idx, value) => {
+  const handleSizeNameChange = (idx, value) => {
     const updatedSizes = [...formData.sizes];
     const prevSize = updatedSizes[idx];
     updatedSizes[idx] = value;
@@ -104,19 +105,25 @@ const OrderForm = () => {
   };
 
   // 색상/사이즈 추가 핸들러
-  const addColor = () => {
-    setFormData((prev) => ({
-      ...prev,
-      colors: [...prev.colors, { colorName: '', colorCode: '#000000' }]
-    }));
-  };
-
+  // const addColor = () => {
+    // setFormData((prev) => ({
+      // ...prev,
+      // colors: [...prev.colors, { colorName: '', colorCode: '#000000' }]
+    // }));
+  // };
+//사이즈 추가
   const addSize = () => {
-    setFormData((prev) => ({
-      ...prev,
-      sizes: [...prev.sizes, '']
-    }));
-  };
+  const index = formData.sizes.length + 1;
+  let newName = `${index}`;
+  while (formData.sizes.includes(newName)) {
+    newName = `${newName}_`;
+  }
+  setFormData((prev) => ({
+    ...prev,
+    sizes: [...prev.sizes, newName]
+  }));
+};
+
 
   // 이미지 파일 핸들러
   const handleImageFile = (type, file) => {
@@ -157,9 +164,55 @@ const OrderForm = () => {
       return sum + (formData.quantities[color.colorName]?.[size] || 0);
     }, 0);
   };
+  
+  // 색상 추가 시 자동 고유 이름 부여
+  const addColor = () => {
+    const index = formData.colors.length + 1;
+    let defaultName = `컬러${index}`;
+    while (formData.colors.find((c) => c.colorName === defaultName)) {
+      defaultName += '_';
+    }
+    setFormData((prev) => ({
+      ...prev,
+      colors: [...prev.colors, { colorName: defaultName, colorCode: '#000000' }]
+    }));
+  };
 
+  /*   // 사이즈 추가
+  const addSize = () => {
+    setFormData((prev) => ({
+      ...prev,
+      sizes: [...prev.sizes, `${prev.sizes.length + 1}`]
+    }));
+  };
+   */
 
+ // ❌ 색상 삭제
+  const removeColor = (index) => {
+    const colorName = formData.colors[index].colorName;
+    const newColors = formData.colors.filter((_, i) => i !== index);
+    const newQuantities = { ...formData.quantities };
+    delete newQuantities[colorName];
+    setFormData((prev) => ({ ...prev, colors: newColors, quantities: newQuantities }));
+  };
 
+// ❌ 사이즈 삭제
+const removeSize = (index) => {
+  const sizeToRemove = formData.sizes[index];
+  const newSizes = formData.sizes.filter((_, i) => i !== index);
+  const newQuantities = { ...formData.quantities };
+
+  // 각 색상별 수량 객체에서 해당 사이즈 삭제
+  Object.keys(newQuantities).forEach((color) => {
+    delete newQuantities[color][sizeToRemove];
+  });
+
+  setFormData((prev) => ({
+    ...prev,
+    sizes: newSizes,
+    quantities: newQuantities
+  }));
+};
 
 
 
@@ -267,7 +320,29 @@ const OrderForm = () => {
                     <Th>컬러명</Th>
 					  <Th>컬러 합</Th>
 					  {formData.sizes.map((size, sIdx) => (
-						<Th key={sIdx}>{size}</Th>
+						<Th key={sIdx}textAlign="center">
+							<Input
+							  size="xs"
+							  value={size}
+							  onChange={(e) => handleSizeNameChange(sIdx, e.target.value)}
+							  textAlign="center"
+							  bg="white"
+							  color="black"
+							  onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+							/>
+							{/* 삭제버튼생성 */}
+							<Flex direction="column" align="center">
+							  <Text>{size}</Text>
+							  <IconButton
+								size="xs"
+								icon={<DeleteIcon />}
+								aria-label="사이즈 삭제"
+								colorScheme="red"
+								variant="ghost"
+								onClick={() => removeSize(sIdx)}  // 이 함수는 위에서 구현해뒀어야 해요
+							  />
+							</Flex>
+						  </Th>
 					  ))}
 					</Tr>
 				  </Thead>
@@ -297,21 +372,29 @@ const OrderForm = () => {
                     />
                   </Flex>
                 </Td>
+				
+				
                 <Td><strong>{calculateColorTotal(color)}</strong></Td>
-                {formData.sizes.map((size) => (
-                  <Td key={size}>
-                    <Input
-                      size="xs"
-                      type="number"
-                      textAlign="center"
-                      value={formData.quantities[color.colorName]?.[size] || 0}
-                      onChange={(e) => handleQuantityChange(color.colorName, size, e.target.value)}
-                      bg="white"
-                      color="black"
-                      onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-                    />
-                  </Td>
-                ))}
+                {formData.sizes.map((size, sIdx) => (
+				  <Td key={size.name}>
+					<Input
+					  size="xs"
+					  value={size.name}
+					  onChange={(e) => handleSizeNameChange(sIdx, e.target.value)}
+					/>
+				  </Td>
+				))}
+
+				
+				<Td>
+                  <IconButton
+                    size="xs"
+                    colorScheme="red"
+                    icon={<DeleteIcon />}
+                    onClick={() => removeColor(idx)}
+                    aria-label="컬러 삭제"
+                  />
+                </Td>
               </Tr>
             ))}
 
