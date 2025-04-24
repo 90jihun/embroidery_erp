@@ -1,27 +1,26 @@
-// src/components/layout/Navbar.tsx 수정
+// src/components/layout/Navbar.tsx
 import React from 'react';
-import { Box, Flex, Button, Heading, Stack } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, HStack } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Navbar = () => {
+  // 현재 날짜 포맷팅
+  const formattedDate = new Date().toISOString().split('T')[0];
+  
   return (
-    <Box bg="blue.600" px={4} color="white">
-      <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-        <Heading>
-          <RouterLink to="/">자수업체 ERP</RouterLink>
+    <Box bg="blue.600" px={4} py={2} color="white">
+      <Flex alignItems="center" justifyContent="space-between">
+        <Heading size="md">
+          <RouterLink to="/" style={{ textDecoration: 'none', color: 'white' }}>
+            자수업체 ERP 시스템
+          </RouterLink>
         </Heading>
         
-        <Stack direction={'row'} gap={4}>
-          <Button colorScheme="blue" variant="solid">
-            <RouterLink to="/orders">작업지시서</RouterLink>
-          </Button>
-          <Button colorScheme="blue" variant="solid">
-            <RouterLink to="/customers">고객사</RouterLink>
-          </Button>
-          <Button colorScheme="blue" variant="solid">
-            <RouterLink to="/production">생산관리</RouterLink>
-          </Button>
-        </Stack>
+        <HStack spacing={2}>
+          <Text fontWeight="medium">관리자</Text>
+          <Text>|</Text>
+          <Text>{formattedDate}</Text>
+        </HStack>
       </Flex>
     </Box>
   );

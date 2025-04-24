@@ -2,19 +2,13 @@
 import React from 'react';
 import { Routes as RouterRoutes, Route } from 'react-router-dom';
 import { Box } from '@chakra-ui/react';
+import OrdersPage from './pages/OrdersPage';
 
 // 페이지 컴포넌트들 (나중에 실제 컴포넌트로 대체)
 const HomePage = () => (
   <Box p={5}>
     <h1>자수업체 ERP 시스템</h1>
     <p>환영합니다! 상단 메뉴에서 원하는 기능을 선택하세요.</p>
-  </Box>
-);
-
-const OrdersPage = () => (
-  <Box p={5}>
-    <h1>작업지시서</h1>
-    <p>작업지시서 관리 페이지입니다.</p>
   </Box>
 );
 
