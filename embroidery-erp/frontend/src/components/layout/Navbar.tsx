@@ -1,26 +1,27 @@
+// src/components/layout/Navbar.tsx 수정
 import React from 'react';
-import { Box, Flex, Heading, Button, HStack } from '@chakra-ui/react';
+import { Box, Flex, Button, Heading, Stack } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Navbar = () => {
   return (
     <Box bg="blue.600" px={4} color="white">
       <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-        <Heading as={RouterLink} to="/" size="lg" fontWeight="bold">
-          자수업체 ERP
+        <Heading>
+          <RouterLink to="/">자수업체 ERP</RouterLink>
         </Heading>
         
-        <HStack spacing={4}>
-          <Button as={RouterLink} to="/orders" colorScheme="blue" variant="solid">
-            작업지시서
+        <Stack direction={'row'} spacing={4}>
+          <Button as={Button} colorScheme="blue" variant="solid">
+            <RouterLink to="/orders">작업지시서</RouterLink>
           </Button>
-          <Button as={RouterLink} to="/customers" colorScheme="blue" variant="solid">
-            고객사
+          <Button as={Button} colorScheme="blue" variant="solid">
+            <RouterLink to="/customers">고객사</RouterLink>
           </Button>
-          <Button as={RouterLink} to="/production" colorScheme="blue" variant="solid">
-            생산관리
+          <Button as={Button} colorScheme="blue" variant="solid">
+            <RouterLink to="/production">생산관리</RouterLink>
           </Button>
-        </HStack>
+        </Stack>
       </Flex>
     </Box>
   );
